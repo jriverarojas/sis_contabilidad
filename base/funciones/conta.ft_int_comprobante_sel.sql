@@ -141,7 +141,12 @@ BEGIN
                               incbte.c31,
                               incbte.id_gestion,
                               incbte.periodo,
-                              incbte.forma_cambio
+                              incbte.forma_cambio,
+                              incbte.ope_3,
+                              incbte.tipo_cambio_3,
+                              incbte.id_moneda_act
+                              
+                              
                           from conta.vint_comprobante incbte
                           inner join wf.tproceso_wf pwf on pwf.id_proceso_wf = incbte.id_proceso_wf
                           inner join wf.testado_wf ew on ew.id_estado_wf = incbte.id_estado_wf
@@ -328,8 +333,11 @@ BEGIN
                             '||v_id_moneda_base::VARCHAR||'::integer as id_moneda_base,
                             '''||v_codigo_moneda_base::VARCHAR||'''::varchar as codigo_moneda_base,
                             incbte.codigo_depto,
-                            conta.f_recuperar_nro_documento_facturas_comprobante(incbte.id_int_comprobante) as documentos
+                            conta.f_recuperar_nro_documento_facturas_comprobante(incbte.id_int_comprobante) as documentos,
+                            COALESCE(en.c31,'''') as c31
                           from conta.vint_comprobante incbte
+                          left join conta.tentrega_det ed on ed.id_int_comprobante = incbte.id_int_comprobante
+                          left join conta.tentrega en on en.id_entrega = ed.id_entrega
                           
                           where incbte.id_proceso_wf = '||v_parametros.id_proceso_wf;
 			
@@ -443,7 +451,7 @@ BEGIN
            
            if(v_parametros.id_padre = '%') then
            
-                 v_consulta:='WITH RECURSIVE path_rec(id_int_comprobante, id_int_comprobante_fks, nro_tramite, nro_cbte, glosa1,volcado, cbte_reversion,id_tipo_relacion_comprobante ) AS (
+                 v_consulta:='WITH RECURSIVE path_rec(id_int_comprobante, id_int_comprobante_fks, nro_tramite, nro_cbte, glosa1,volcado, cbte_reversion,id_tipo_relacion_comprobante, id_proceso_wf ) AS (
                                 SELECT  
                                   c.id_int_comprobante,
                                   c.id_int_comprobante_fks,
@@ -452,7 +460,8 @@ BEGIN
                                   c.glosa1,
                                   c.volcado,
                                   c.cbte_reversion,
-                                  c.id_tipo_relacion_comprobante
+                                  c.id_tipo_relacion_comprobante, 
+                                  c.id_proceso_wf
                                 FROM conta.tint_comprobante c 
                                 WHERE c.id_int_comprobante = '||v_parametros.id_int_comprobante_basico::varchar||'
                         	
@@ -465,7 +474,8 @@ BEGIN
                                   c2.glosa1,
                                   c2.volcado,
                                   c2.cbte_reversion,
-                                  c2.id_tipo_relacion_comprobante
+                                  c2.id_tipo_relacion_comprobante, 
+                                  c2.id_proceso_wf
                                 FROM conta.tint_comprobante c2
                                 inner join path_rec  pr on c2.id_int_comprobante = ANY(pr.id_int_comprobante_fks)
                                 
@@ -479,7 +489,8 @@ BEGIN
                               rc.nombre,
                               c.volcado,
                               c.cbte_reversion,
-                              ''raiz''::varchar as tipo_nodo
+                              ''raiz''::varchar as tipo_nodo, 
+                              c.id_proceso_wf
                             FROM path_rec c
                             left join conta.ttipo_relacion_comprobante rc on rc.id_tipo_relacion_comprobante = c.id_tipo_relacion_comprobante
                             order by id_int_comprobante  limit 1 offset 0';
@@ -496,7 +507,8 @@ BEGIN
                               rc.nombre,
                               c.volcado,
                               c.cbte_reversion,
-                              ''hijo''::varchar as tipo_nodo
+                              ''hijo''::varchar as tipo_nodo, 
+                              c.id_proceso_wf
                           FROM conta.tint_comprobante c
                           inner join conta.ttipo_relacion_comprobante rc on rc.id_tipo_relacion_comprobante = c.id_tipo_relacion_comprobante
                           WHERE  '||v_parametros.id_padre||' = ANY(c.id_int_comprobante_fks)';
@@ -596,7 +608,9 @@ BEGIN
                               incbte.fecha_costo_ini,
                               incbte.fecha_costo_fin,
                               incbte.tipo_cambio_2,
+                              incbte.tipo_cambio_3,
                               incbte.id_moneda_tri,
+                              incbte.id_moneda_act,
                               incbte.sw_tipo_cambio,
                               incbte.id_config_cambiaria,
                               incbte.ope_1,

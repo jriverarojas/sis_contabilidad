@@ -68,10 +68,12 @@ Phx.vista.IntComprobanteReg = {
          if(rec.sw_tipo_cambio == 'si'){
             this.ocultarComponente(this.Cmp.tipo_cambio);
             this.ocultarComponente(this.Cmp.tipo_cambio_2);
+            this.ocultarComponente(this.Cmp.tipo_cambio_3);
          }
          else{
          	this.mostrarComponente(this.Cmp.tipo_cambio);
             this.mostrarComponente(this.Cmp.tipo_cambio_2);
+            this.mostrarComponente(this.Cmp.tipo_cambio_3);
              
             //RAC 1/12/2016 valor origal en no
             //cambio para que al editar se peuda cambiar la forma de pago y se recalcule el tipo de cambio ...
@@ -91,6 +93,7 @@ Phx.vista.IntComprobanteReg = {
           this.Cmp.fecha.setReadOnly(false);
           this.mostrarComponente(this.Cmp.tipo_cambio);
           this.mostrarComponente(this.Cmp.tipo_cambio_2);
+          this.mostrarComponente(this.Cmp.tipo_cambio_3);
        },
        
        igualarCbte: function() {
@@ -161,11 +164,18 @@ Phx.vista.IntComprobanteReg = {
 		        else{
 		        	 this.getBoton('btnSwEditble').setDisabled(true);
 		        }
+
+				if(rec.data.momento =='presupuestario'){
+					this.getBoton('btnDocCmpVnt').enable();
+				}else{
+					this.getBoton('btnDocCmpVnt').disable();
+				}
+
 		        this.getBoton('sig_estado').enable();            
 				this.getBoton('btnImprimir').enable();
 				this.getBoton('btnRelDev').enable();
 				this.getBoton('btnIgualarCbte').enable();
-				this.getBoton('btnDocCmpVnt').enable();
+				//this.getBoton('btnDocCmpVnt').enable();
 				this.getBoton('chkpresupuesto').enable();				
 				this.getBoton('btnChequeoDocumentosWf').enable();
                 this.getBoton('diagrama_gantt').enable();
@@ -249,7 +259,7 @@ Phx.vista.IntComprobanteReg = {
 					this.Cmp.tipo_cambio.setReadOnly(true);
 					this.Cmp.tipo_cambio_2.setReadOnly(true);
 				}
-				
+				this.Cmp.tipo_cambio_3.setReadOnly(true);
 				
 				
 				Ext.Ajax.request({
@@ -266,6 +276,7 @@ Phx.vista.IntComprobanteReg = {
 					if (reg.ROOT.error) {
 						this.Cmp.tipo_cambio.reset();
 						this.Cmp.tipo_cambio_2.reset();
+						this.Cmp.tipo_cambio_3.reset();
 						Ext.Msg.alert('Error', 'Validación no realizada: ' + reg.ROOT.error)
 					} else {
 						
@@ -273,10 +284,12 @@ Phx.vista.IntComprobanteReg = {
 						
 						this.Cmp.tipo_cambio.label.update(reg.ROOT.datos.v_tc1 +' (tc)');
 						this.Cmp.tipo_cambio_2.label.update(reg.ROOT.datos.v_tc2 +' (tc)');
+						this.Cmp.tipo_cambio_3.label.update(reg.ROOT.datos.v_tc3 +' (tc)');
 						if (sw_valores == 'si'){
 						    //poner valores por defecto
 						 	this.Cmp.tipo_cambio.setValue(reg.ROOT.datos.v_valor_tc1);
 						    this.Cmp.tipo_cambio_2.setValue(reg.ROOT.datos.v_valor_tc2);
+						    this.Cmp.tipo_cambio_3.setValue(reg.ROOT.datos.v_valor_tc3);
 						}
 						
 					   
@@ -287,6 +300,7 @@ Phx.vista.IntComprobanteReg = {
 				}, failure: function(a,b,c,d){
 					this.Cmp.tipo_cambio.reset();
 					this.Cmp.tipo_cambio_2.reset();
+					this.Cmp.tipo_cambio_3.reset();
 					this.conexionFailure(a,b,c,d)
 				},
 				timeout: this.timeout,

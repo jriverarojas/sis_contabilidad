@@ -634,9 +634,6 @@ header("content-type: text/javascript; charset=UTF-8");
 			grid : true,
 			form : true
 		}, 
-		
-		
-		
 		{
 			config : {
 				name : 'tipo_cambio_2',
@@ -656,7 +653,29 @@ header("content-type: text/javascript; charset=UTF-8");
 			id_grupo : 2,
 			grid : true,
 			form : true
-		}, {
+		}, 
+		{
+			config : {
+				name : 'tipo_cambio_3',
+				fieldLabel : '(TC)',
+				allowBlank : false,
+				readOnly : true,
+				anchor : '80%',
+				gwidth : 70,
+				maxLength : 20,
+				decimalPrecision : 6
+			},
+			type : 'NumberField',
+			filters : {
+				pfiltro : 'incbte.tipo_cambio_3',
+				type : 'numeric'
+			},
+			id_grupo : 2,
+			grid : true,
+			form : true
+		},
+		
+		{
 			config : {
 				name : 'nro_tramite',
 				gwidth : 150,
@@ -1168,8 +1187,8 @@ header("content-type: text/javascript; charset=UTF-8");
 		}, 'momento_comprometido', 'momento_ejecutado', 'id_moneda_base','id_proceso_wf','id_estado_wf',
 		'cbte_cierre', 'cbte_apertura', 'cbte_aitb', 'momento_pagado', 'manual', 
 		'desc_tipo_relacion_comprobante', 'id_int_comprobante_fks', 'manual', 
-		'id_tipo_relacion_comprobante', 'tipo_cambio_2', 'id_moneda_tri', 
-		'sw_tipo_cambio', 'id_config_cambiaria', 'ope_1', 'ope_2', 
+		'id_tipo_relacion_comprobante', 'tipo_cambio_2', 'id_moneda_tri', 'tipo_cambio_3', 'id_moneda_act',
+		'sw_tipo_cambio', 'id_config_cambiaria', 'ope_1', 'ope_2', 'ope_3',
 		'desc_moneda_tri', 'localidad','sw_editable','cbte_reversion','volcado','c31','fecha_c31','forma_cambio'],
 
 		rowExpander : new Ext.ux.grid.RowExpander({
@@ -1494,14 +1513,13 @@ header("content-type: text/javascript; charset=UTF-8");
 	}, 
 	
 	sigEstado:function(){                   
-      	var rec=this.sm.getSelected();
-      	
-      	this.mostrarWizard(rec);
+      	var rec=this.sm.getSelected();      	
+      	this.mostrarWizard(rec, true);
       	
                
      },
      
-    mostrarWizard : function(rec) {
+    mostrarWizard : function(rec, validar_doc) {
      	var configExtra = [],
      		obsValorInicial;
      	   
@@ -1543,6 +1561,9 @@ header("content-type: text/javascript; charset=UTF-8");
                         });        
      },
     onSaveWizard:function(wizard,resp){
+        this.mandarDatosWizard(wizard, resp, true);
+    },
+    mandarDatosWizard:function(wizard,resp, validar_doc){
         Phx.CP.loadingShow();
         Ext.Ajax.request({
             url:'../../sis_contabilidad/control/IntComprobante/siguienteEstado',
@@ -1555,34 +1576,61 @@ header("content-type: text/javascript; charset=UTF-8");
 	                id_depto_wf:        resp.id_depto_wf,
 	                obs:                resp.obs,
 	                instruc_rpc:		resp.instruc_rpc,
-	                json_procesos:      Ext.util.JSON.encode(resp.procesos)
+	                json_procesos:      Ext.util.JSON.encode(resp.procesos),
+	                validar_doc:		validar_doc
 	                
                 },
             success: this.successWizard,
             failure: this.conexionFailure, 
-            argument: { wizard:wizard , id_proceso_wf : resp.id_proceso_wf_act},
+            argument: { wizard:wizard , id_proceso_wf : resp.id_proceso_wf_act, resp : resp},
             timeout: this.timeout,
             scope: this
         });
+        
+        
+        
     },
     successWizard: function(resp){
+		var rec=this.sm.getSelected();
         Phx.CP.loadingHide();
-        resp.argument.wizard.panel.destroy()
-        this.reload();
-        
-        if (resp.argument.id_proceso_wf) {
-				Phx.CP.loadingShow();
-				Ext.Ajax.request({
-					url : '../../sis_contabilidad/control/IntComprobante/reporteCbte',
-					params : {
-						'id_proceso_wf' : resp.argument.id_proceso_wf
-					},
-					success : this.successExport,
-					failure : this.conexionFailure,
-					timeout : this.timeout,
-					scope : this
-				});
+       
+        var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+
+		var patron = /^FA*/;
+       
+        if(reg.ROOT.datos.operacion == 'falla'){
+
+			if(patron.test(rec.data.nro_tramite)==false) {
+				reg.ROOT.datos.desc_falla
+				if (confirm(reg.ROOT.datos.desc_falla + "\n¿Desea continuar de todas formas?")) {
+					this.mandarDatosWizard(resp.argument.wizard, resp.argument.resp, false);
+				}
+				else {
+					resp.argument.wizard.panel.destroy()
+					this.reload();
+				}
 			}
+        }
+        else{
+	        resp.argument.wizard.panel.destroy()
+	        this.reload();
+	        
+	        if (resp.argument.id_proceso_wf) {
+					Phx.CP.loadingShow();
+					Ext.Ajax.request({
+						url : '../../sis_contabilidad/control/IntComprobante/reporteCbte',
+						params : {
+							'id_proceso_wf' : resp.argument.id_proceso_wf
+						},
+						success : this.successExport,
+						failure : this.conexionFailure,
+						timeout : this.timeout,
+						scope : this
+					});
+				}	
+        }
+        
+        
         
         
     },

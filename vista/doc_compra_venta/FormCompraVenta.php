@@ -1875,14 +1875,14 @@ header("content-type: text/javascript; charset=UTF-8");
             }
 
             //calculo iva cf
-            if(this.Cmp.porc_iva_cf.getValue() >= 0 || this.Cmp.porc_iva_df.getValue() > 0){
+            if(this.Cmp.porc_iva_cf.getValue() > 0 || this.Cmp.porc_iva_df.getValue() > 0){
 
                 var excento = 0.00;
 
                 if(this.Cmp.importe_excento.getValue() > 0){
                     excento = this.Cmp.importe_excento.getValue();
                 }
-                if(this.Cmp.porc_iva_cf.getValue() >= 0){
+                if(this.Cmp.porc_iva_cf.getValue() > 0){
 
                     this.Cmp.importe_iva.setValue(this.Cmp.porc_iva_cf.getValue()*(this.Cmp.importe_neto.getValue() - excento));
                 }
@@ -1890,6 +1890,10 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.Cmp.importe_iva.setValue(this.Cmp.porc_iva_df.getValue()*(this.Cmp.importe_neto.getValue() - excento));
                 }
             }
+            else{
+            	 this.Cmp.importe_iva.setValue(0);
+			}
+            
             if(this.mostrarFormaPago){
                 if(this.Cmp.importe_retgar.getValue() > 0 || this.Cmp.importe_anticipo.getValue() > 0 ||  this.Cmp.importe_pendiente.getValue() > 0){
                     this.Cmp.id_auxiliar.allowBlank = false;
@@ -2028,10 +2032,12 @@ header("content-type: text/javascript; charset=UTF-8");
             this.Cmp.id_depto_conta.setValue(this.data.id_depto);
             this.Cmp.id_gestion.setValue(this.data.id_gestion);
             this.Cmp.tipo.setValue(this.data.tipoDoc);
-
-            this.detCmp.id_centro_costo.store.baseParams.id_depto = this.data.id_depto;
+            
+            
+           
             //load detalle de conceptos
             if(this.regitrarDetalle == 'si'){
+            	this.detCmp.id_centro_costo.store.baseParams.id_depto = this.data.id_depto;
                 this.mestore.baseParams.id_doc_compra_venta = this.Cmp.id_doc_compra_venta.getValue();
                 this.mestore.load()
             }
@@ -2235,11 +2241,9 @@ header("content-type: text/javascript; charset=UTF-8");
 
         },
         controlMiles:function (value) {
-            return value
-                .replace(/\D/g, "")
-                .replace(/([0-9])([0-9]{2})$/, '$1.$2')
-                .replace(/\B(?=(\d{3})+(?!\d)\.?)/g, "")
-                ;
+            return value    .replace(',', "")
+                            //.replace(/([0-9])([0-9]{2})$/, '$1.$2')
+                            //.replace(/\B(?=(\d{3})+(?!\d)\.?)/g, "");
         }
 
 

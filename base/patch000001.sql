@@ -3750,3 +3750,615 @@ CREATE TABLE conta.tbancarizacion_periodo(
 
 
 
+/***********************************I-SCP-RAC-CONTA-0-26/05/2017****************************************/
+
+
+--Columnas olvidades de poner en archivo
+--------------- SQL ---------------
+
+ALTER TABLE conta.tdoc_compra_venta
+  ADD COLUMN estacion VARCHAR(4);
+
+COMMENT ON COLUMN conta.tdoc_compra_venta.estacion
+IS 'esta es una columna propi ade boa para manejo de agencias';
+
+--------------- SQL ---------------
+
+ALTER TABLE conta.tdoc_compra_venta
+  ADD COLUMN id_punto_venta INTEGER;
+
+COMMENT ON COLUMN conta.tdoc_compra_venta.id_punto_venta
+IS 'columna propia de boa para manejo de agencias';
+
+
+--------------- SQL ---------------
+
+ALTER TABLE conta.tdoc_compra_venta
+  ADD COLUMN id_agencia INTEGER;
+
+COMMENT ON COLUMN conta.tdoc_compra_venta.id_agencia
+IS 'column apropia de boa para trabajr con agencias';
+
+/***********************************F-SCP-RAC-CONTA-0-26/05/2017****************************************/
+
+
+/***********************************I-SCP-RAC-CONTA-0-31/05/2017****************************************/
+
+
+--------------- SQL ---------------
+
+CREATE TABLE conta.ttipo_cc_ot (
+  id_tipo_cc_ot SERIAL NOT NULL,
+  id_tipo_cc INTEGER NOT NULL,
+  id_orden_trabajo INTEGER NOT NULL,
+  PRIMARY KEY(id_tipo_cc_ot)
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+
+/***********************************F-SCP-RAC-CONTA-0-31/05/2017****************************************/
+
+
+
+/***********************************I-SCP-RAC-CONTA-0-07/06/2017****************************************/
+
+
+--------------- SQL ---------------
+
+CREATE TABLE conta.tconfig_subtipo_cuenta (
+  id_config_subtipo_cuenta SERIAL NOT NULL,
+  codigo VARCHAR(300),
+  nombre VARCHAR(500) NOT NULL,
+  descripcion VARCHAR,
+  id_config_tipo_cuenta INTEGER,
+  PRIMARY KEY(id_config_subtipo_cuenta)
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+
+--------------- SQL ---------------
+
+ALTER TABLE conta.tcuenta
+  ADD COLUMN id_config_subtipo_cuenta INTEGER;
+
+
+--------------- SQL ---------------
+
+ALTER TABLE conta.tconfig_tipo_cuenta
+  RENAME COLUMN id_cofig_tipo_cuenta TO id_config_tipo_cuenta;
+  
+  
+/***********************************F-SCP-RAC-CONTA-0-07/06/2017****************************************/
+
+
+/***********************************I-SCP-RAC-CONTA-0-08/06/2017****************************************/
+
+--------------- SQL ---------------
+
+ALTER TABLE conta.tplantilla_comprobante
+  ADD COLUMN campo_cbte_relacionado VARCHAR(350);
+  
+  --------------- SQL ---------------
+
+ALTER TABLE conta.tplantilla_comprobante
+  ADD COLUMN codigo_tipo_relacion VARCHAR(350);
+  
+/***********************************F-SCP-RAC-CONTA-0-08/06/2017****************************************/
+
+
+
+/***********************************I-SCP-RAC-CONTA-0-22/06/2017****************************************/
+
+--------------- SQL ---------------
+
+CREATE TABLE conta.trango (
+  id_rango SERIAL NOT NULL,
+  id_tipo_cc INTEGER NOT NULL,
+  id_periodo INTEGER NOT NULL,
+  debe_mb NUMERIC,
+  haber_mb NUMERIC,
+  debe_mt NUMERIC,
+  haber_mt NUMERIC(1,0),
+  PRIMARY KEY(id_rango)
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+COMMENT ON TABLE conta.trango
+IS 'esta tabla sirve apra generar el reporte de costos de manera rapida, necesita ser sincornizada para tener lso datos actualizados (los datos de esta tabla son solo para fines de consulta)';
+
+/***********************************F-SCP-RAC-CONTA-0-22/06/2017****************************************/
+/***********************************I-SCP-MMV-CONTA-0-28/06/2017****************************************/
+CREATE TABLE conta.tanexos_actualizaciones (
+  id_anexos_actualizaciones SERIAL,
+  nit_proveerdor VARCHAR(255),
+  nro_contrato VARCHAR(255) NOT NULL,
+  nit_comisionista VARCHAR(255),
+  fecha_vigente DATE,
+  codigo_producto VARCHAR(255),
+  descripcion_producto VARCHAR(1000),
+  precio_unitario NUMERIC(10,2),
+  tipo_comision VARCHAR(255),
+  monto_porcentaje VARCHAR(255),
+  revisado VARCHAR(10) DEFAULT 'no'::character varying,
+  id_periodo INTEGER,
+  id_depto_conta INTEGER,
+  registro VARCHAR(255),
+  tipo_anexo VARCHAR(255),
+  lista_negra VARCHAR(20) DEFAULT 'no'::character varying,
+  tipo_documento VARCHAR(200),
+  CONSTRAINT tanexos_actualizaciones_pkey PRIMARY KEY(id_anexos_actualizaciones)
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+ALTER TABLE conta.tanexos_actualizaciones
+  ALTER COLUMN id_anexos_actualizaciones SET STATISTICS 0;
+
+ALTER TABLE conta.tanexos_actualizaciones
+  ALTER COLUMN nit_proveerdor SET STATISTICS 0;
+
+ALTER TABLE conta.tanexos_actualizaciones
+  ALTER COLUMN nro_contrato SET STATISTICS 0;
+
+ALTER TABLE conta.tanexos_actualizaciones
+  ALTER COLUMN nit_comisionista SET STATISTICS 0;
+
+ALTER TABLE conta.tanexos_actualizaciones
+  ALTER COLUMN fecha_vigente SET STATISTICS 0;
+
+ALTER TABLE conta.tanexos_actualizaciones
+  ALTER COLUMN codigo_producto SET STATISTICS 0;
+
+ALTER TABLE conta.tanexos_actualizaciones
+  ALTER COLUMN precio_unitario SET STATISTICS 0;
+
+ALTER TABLE conta.tanexos_actualizaciones
+  ALTER COLUMN monto_porcentaje SET STATISTICS 0;
+
+ALTER TABLE conta.tanexos_actualizaciones
+  ALTER COLUMN id_depto_conta SET STATISTICS 0;
+
+ALTER TABLE conta.tanexos_actualizaciones
+  ALTER COLUMN tipo_anexo SET STATISTICS 0;
+
+ALTER TABLE conta.tanexos_actualizaciones
+  ALTER COLUMN lista_negra SET STATISTICS 0;
+
+ALTER TABLE conta.tanexos_actualizaciones
+  ALTER COLUMN tipo_documento SET STATISTICS 0;
+
+  CREATE TABLE conta.tcomisionistas (
+  id_comisionista SERIAL,
+  nro_contrato VARCHAR(255) NOT NULL,
+  codigo_producto VARCHAR(255),
+  descripcion_producto VARCHAR(1000),
+  cantidad_total_entregado NUMERIC(10,2),
+  cantidad_total_vendido NUMERIC(10,2) DEFAULT 0,
+  precio_unitario NUMERIC(10,2),
+  monto_total NUMERIC(10,2),
+  monto_total_comision NUMERIC(10,2),
+  revisado VARCHAR(20) DEFAULT 'no'::character varying,
+  id_periodo INTEGER,
+  id_depto_conta INTEGER,
+  registro VARCHAR(255),
+  tipo_comisionista VARCHAR(255),
+  lista_negra VARCHAR(20) DEFAULT 'no'::character varying,
+  nit_comisionista VARCHAR(255),
+  CONSTRAINT tcomisionistas_pkey PRIMARY KEY(id_comisionista)
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+ALTER TABLE conta.tcomisionistas
+  ALTER COLUMN nro_contrato SET STATISTICS 0;
+
+ALTER TABLE conta.tcomisionistas
+  ALTER COLUMN codigo_producto SET STATISTICS 0;
+
+ALTER TABLE conta.tcomisionistas
+  ALTER COLUMN descripcion_producto SET STATISTICS 0;
+
+ALTER TABLE conta.tcomisionistas
+  ALTER COLUMN cantidad_total_entregado SET STATISTICS 0;
+
+ALTER TABLE conta.tcomisionistas
+  ALTER COLUMN cantidad_total_vendido SET STATISTICS 0;
+
+ALTER TABLE conta.tcomisionistas
+  ALTER COLUMN precio_unitario SET STATISTICS 0;
+
+ALTER TABLE conta.tcomisionistas
+  ALTER COLUMN revisado SET STATISTICS 0;
+
+ALTER TABLE conta.tcomisionistas
+  ALTER COLUMN registro SET STATISTICS 0;
+
+  CREATE TABLE conta.tperiodo_resolucion (
+  id_periodo_resolucion SERIAL,
+  id_depto INTEGER,
+  id_periodo INTEGER,
+  estado VARCHAR(20) DEFAULT 'abierto'::character varying NOT NULL,
+  CONSTRAINT tperiodo_resolucion_pkey PRIMARY KEY(id_periodo_resolucion)
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+ALTER TABLE conta.tperiodo_resolucion
+  ALTER COLUMN id_periodo_resolucion SET STATISTICS 0;
+
+ALTER TABLE conta.tperiodo_resolucion
+  ALTER COLUMN id_depto SET STATISTICS 0;
+
+ALTER TABLE conta.tperiodo_resolucion
+  ALTER COLUMN id_periodo SET STATISTICS 0;
+
+  CREATE TABLE conta.tpersona_naturales (
+  id_persona_natural SERIAL,
+  codigo_cliente VARCHAR(255) NOT NULL,
+  nro_documeneto VARCHAR(250) NOT NULL,
+  nombre VARCHAR(500) NOT NULL,
+  cantidad_producto NUMERIC(10,2) NOT NULL,
+  codigo_producto VARCHAR(255) NOT NULL,
+  descripcion VARCHAR(1000) NOT NULL,
+  precio_unitario NUMERIC(10,2) NOT NULL,
+  importe_total NUMERIC(10,2) NOT NULL,
+  revisado VARCHAR(10) DEFAULT 'no'::character varying,
+  id_periodo INTEGER,
+  id_depto_conta INTEGER,
+  registro VARCHAR(255),
+  tipo_persona_natural VARCHAR(255),
+  lista_negra VARCHAR(20) DEFAULT 'no'::character varying,
+  tipo_documento VARCHAR(200),
+  CONSTRAINT tpersona_naturales_pkey PRIMARY KEY(id_persona_natural)
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+ALTER TABLE conta.tpersona_naturales
+  ALTER COLUMN id_persona_natural SET STATISTICS 0;
+
+ALTER TABLE conta.tpersona_naturales
+  ALTER COLUMN codigo_cliente SET STATISTICS 0;
+
+ALTER TABLE conta.tpersona_naturales
+  ALTER COLUMN nombre SET STATISTICS 0;
+
+ALTER TABLE conta.tpersona_naturales
+  ALTER COLUMN cantidad_producto SET STATISTICS 0;
+
+ALTER TABLE conta.tpersona_naturales
+  ALTER COLUMN codigo_producto SET STATISTICS 0;
+
+ALTER TABLE conta.tpersona_naturales
+  ALTER COLUMN descripcion SET STATISTICS 0;
+
+ALTER TABLE conta.tpersona_naturales
+  ALTER COLUMN precio_unitario SET STATISTICS 0;
+
+ALTER TABLE conta.tpersona_naturales
+  ALTER COLUMN importe_total SET STATISTICS 0;
+
+  CREATE TABLE conta.tregimen_simplificado (
+  id_simplificado SERIAL,
+  codigo_cliente VARCHAR(250) NOT NULL,
+  nit VARCHAR(255) NOT NULL,
+  cantidad_producto NUMERIC(10,2),
+  codigo_producto VARCHAR(255) NOT NULL,
+  descripcion VARCHAR(1000),
+  precio_unitario NUMERIC(10,2),
+  importe_total NUMERIC(10,2) DEFAULT 0,
+  revisado VARCHAR(10) DEFAULT 'no'::character varying,
+  id_periodo INTEGER,
+  id_depto_conta INTEGER,
+  registro VARCHAR(255),
+  tipo_regimen_simplificado VARCHAR(255),
+  lista_negra VARCHAR(20) DEFAULT 'no'::character varying,
+  CONSTRAINT tsimplificado_pkey PRIMARY KEY(id_simplificado)
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+ALTER TABLE conta.tregimen_simplificado
+  ALTER COLUMN id_simplificado SET STATISTICS 0;
+
+ALTER TABLE conta.tregimen_simplificado
+  ALTER COLUMN codigo_cliente SET STATISTICS 0;
+
+ALTER TABLE conta.tregimen_simplificado
+  ALTER COLUMN cantidad_producto SET STATISTICS 0;
+
+ALTER TABLE conta.tregimen_simplificado
+  ALTER COLUMN codigo_producto SET STATISTICS 0;
+
+ALTER TABLE conta.tregimen_simplificado
+  ALTER COLUMN descripcion SET STATISTICS 0;
+
+ALTER TABLE conta.tregimen_simplificado
+  ALTER COLUMN precio_unitario SET STATISTICS 0;
+
+ALTER TABLE conta.tregimen_simplificado
+  ALTER COLUMN importe_total SET STATISTICS 0;
+
+COMMENT ON COLUMN conta.tregimen_simplificado.codigo_cliente
+IS 'Código del cliente asignado por el proveedor o parte numérica de la
+cédula de identidad.';
+
+COMMENT ON COLUMN conta.tregimen_simplificado.nit
+IS 'Número de Identificación Tributaria del cliente RTS.';
+
+COMMENT ON COLUMN conta.tregimen_simplificado.codigo_producto
+IS 'Consignar el código único de identificación del producto.';
+
+COMMENT ON COLUMN conta.tregimen_simplificado.descripcion
+IS 'Consignar la descripción del producto vendido al cliente RTS.';
+
+COMMENT ON COLUMN conta.tregimen_simplificado.precio_unitario
+IS 'Consignar el porcentaje de descuento por producto vendido al cliente
+RTS (Ejemplo: 10%, 5.5%, 0.05%). Si no corresponde, consignar el
+valor 0.';
+/***********************************F-SCP-MMV-CONTA-0-28/06/2017****************************************/
+/***********************************I-SCP-MMV-CONTA-1-28/06/2017****************************************/
+CREATE TYPE conta.json_act_anexos AS (
+  nit_proveerdor VARCHAR(255),
+  nro_contrato VARCHAR(255),
+  nit_comisionista VARCHAR(255),
+  fecha_vigente VARCHAR(255),
+  codigo_producto VARCHAR(255),
+  descripcion_producto VARCHAR(255),
+  precio_unitario VARCHAR(255),
+  tipo_comision VARCHAR(255),
+  monto_porcentaje VARCHAR(255)
+);
+CREATE TYPE conta.json_comisionistas AS (
+  nit_comisionista VARCHAR(255),
+  razon_social VARCHAR(255),
+  nro_contrato VARCHAR(255),
+  codigo_producto VARCHAR(255),
+  descripcion_producto VARCHAR(255),
+  cantidad_total_entregado VARCHAR(255),
+  cantidad_total_vendido VARCHAR(255),
+  precio_unitario VARCHAR(255),
+  monto_total VARCHAR(255),
+  monto_total_comision VARCHAR(255)
+);
+CREATE TYPE conta.json_persona_natural AS (
+  codigo_cliente VARCHAR(255),
+  nro_documeneto VARCHAR(255),
+  nombre VARCHAR(255),
+  cantidad_producto VARCHAR(255),
+  codigo_producto VARCHAR(255),
+  descripcion VARCHAR(255),
+  tipo_documento VARCHAR(255),
+  precio_unitario VARCHAR(255),
+  importe_total VARCHAR(255)
+);
+CREATE TYPE conta.json_regimen_simplificado AS (
+  codigo_cliente VARCHAR(255),
+  nit VARCHAR(255),
+  cantidad_producto VARCHAR(255),
+  codigo_producto VARCHAR(255),
+  descripcion VARCHAR(255),
+  precio_unitario VARCHAR(255),
+  importe_total VARCHAR(255),
+  fecha_documento VARCHAR(255)
+);
+/***********************************F-SCP-MMV-CONTA-1-28/06/2017****************************************/
+
+
+/***********************************I-SCP-RAC-CONTA-1-05/07/2017****************************************/
+ALTER TABLE conta.trango
+  ADD COLUMN memoria NUMERIC;  
+--------------- SQL ---------------
+ALTER TABLE conta.trango
+  ADD COLUMN formulado NUMERIC;
+--------------- SQL ---------------
+ALTER TABLE conta.trango
+  ADD COLUMN comprometido NUMERIC;
+
+ALTER TABLE conta.trango
+  ADD COLUMN ejecutado NUMERIC; 
+
+ALTER TABLE conta.trango
+  ADD COLUMN id_partida INTEGER;  
+  
+/***********************************F-SCP-RAC-CONTA-1-05/07/2017****************************************/
+
+
+/***********************************I-SCP-RAC-CONTA-1-11/07/2017****************************************/
+
+--------------- SQL ---------------
+
+ALTER TABLE conta.tconfig_cambiaria
+  ADD COLUMN ope_3 VARCHAR DEFAULT '{MB}->{MA}' NOT NULL;
+  
+--------------- SQL ---------------
+
+ALTER TABLE conta.tint_transaccion
+  ADD COLUMN tipo_cambio_3 NUMERIC;
+
+COMMENT ON COLUMN conta.tint_transaccion.tipo_cambio_3
+IS 'tipo de cambio para la segtercera unda operación';
+
+--------------- SQL ---------------
+
+ALTER TABLE conta.tint_transaccion
+  ADD COLUMN id_moneda_act INTEGER;
+
+COMMENT ON COLUMN conta.tint_transaccion.id_moneda_act
+IS 'identifica la moneda de actualizacion';
+
+--------------- SQL ---------------
+
+ALTER TABLE conta.tint_comprobante
+  ADD COLUMN tipo_cambio_3 NUMERIC;
+
+COMMENT ON COLUMN conta.tint_comprobante.tipo_cambio_3
+IS 'tipo de cambio para la tercera operacion'; 
+
+
+--------------- SQL ---------------
+
+ALTER TABLE conta.tint_comprobante
+  ADD COLUMN id_moneda_act INTEGER;
+
+COMMENT ON COLUMN conta.tint_comprobante.id_moneda_act
+IS 'identifica la moneda de actualizacion'; 
+
+--------------- SQL ---------------
+
+ALTER TABLE conta.tint_transaccion
+  ADD COLUMN importe_debe_ma NUMERIC;
+  
+--------------- SQL ---------------
+
+ALTER TABLE conta.tint_transaccion
+  ADD COLUMN importe_haber_ma NUMERIC;
+  
+--------------- SQL ---------------
+
+ALTER TABLE conta.tint_transaccion
+  ADD COLUMN importe_gasto_ma NUMERIC;
+      
+
+--------------- SQL ---------------
+
+ALTER TABLE conta.tint_transaccion
+  ADD COLUMN importe_recurso_ma NUMERIC;
+
+
+--------------- SQL ---------------
+
+ALTER TABLE conta.tint_rel_devengado
+  ADD COLUMN monto_pago_ma NUMERIC;
+    
+--------------- SQL ---------------
+
+ALTER TABLE conta.tcuenta
+  ADD COLUMN tipo_act VARCHAR(15) DEFAULT 'no' NOT NULL;
+
+COMMENT ON COLUMN conta.tcuenta.tipo_act
+IS 'no, conta, activos,  defien si la cuetna contable  se actualiza, i actuaiza define si viene el calculo en el sistema de contabilidad o en el sistema de activos fijos';
+
+
+--------------- SQL ---------------
+
+ALTER TABLE conta.tresultado_plantilla
+  ADD COLUMN nombre_func VARCHAR;
+
+COMMENT ON COLUMN conta.tresultado_plantilla.nombre_func
+IS 'si es null la logica de la plantilla sale de resutlado detalle,  si se define, esta función debe contener lalogica para generar el cbte'; 
+
+
+/***********************************F-SCP-RAC-CONTA-1-11/07/2017****************************************/
+
+
+/***********************************I-SCP-RAC-CONTA-1-25/07/2017****************************************/
+
+
+
+ALTER TABLE conta.trango
+  ALTER COLUMN haber_mt TYPE NUMERIC;
+
+
+/***********************************F-SCP-RAC-CONTA-1-25/07/2017****************************************/
+  
+  
+
+
+/***********************************I-SCP-RAC-CONTA-1-26/07/2017****************************************/
+  
+--------------- SQL ---------------
+
+CREATE TABLE conta.ttipo_estado_cuenta (
+  id_tipo_estado_cuenta SERIAL NOT NULL,
+  nombre VARCHAR NOT NULL,
+  codigo VARCHAR(50) NOT NULL UNIQUE,
+  tabla VARCHAR(300),
+  columna_id_tabla VARCHAR(100),
+  columna_codigo_aux VARCHAR(100),
+  PRIMARY KEY(id_tipo_estado_cuenta)
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+COMMENT ON COLUMN conta.ttipo_estado_cuenta.tabla
+IS 'tabla para consulta de columnas';
+
+COMMENT ON COLUMN conta.ttipo_estado_cuenta.columna_id_tabla
+IS 'nombre de la columnas primari key de la tabla especificada';
+
+COMMENT ON COLUMN conta.ttipo_estado_cuenta.colunas_codigo_aux
+IS 'nombre de la columnas codigo auxuliar, (que nos permite unir los datos de tabla con auxiliares contables)';  
+  
+
+--------------- SQL ---------------
+
+CREATE TABLE conta.ttipo_estado_columna (
+  id_tipo_estado_columna SERIAL NOT NULL,
+  codigo VARCHAR(100) NOT NULL UNIQUE,
+  nombre VARCHAR NOT NULL,
+  origen VARCHAR(40) DEFAULT 'contabilidad' NOT NULL,
+  id_config_subtipo_cuenta INTEGER,
+  nombre_funcion VARCHAR,
+  link_int_det VARCHAR,
+  PRIMARY KEY(id_tipo_estado_columna)
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+COMMENT ON COLUMN conta.ttipo_estado_columna.origen
+IS 'origen de calculo de la columas, contabilidad o funcion';
+
+COMMENT ON COLUMN conta.ttipo_estado_columna.id_config_subtipo_cuenta
+IS 'si el origen es contabilidad debe especifica el id_subtipo_Cuenta para realizar el mayor';
+
+COMMENT ON COLUMN conta.ttipo_estado_columna.nombre_funcion
+IS 'si el origen es funcion, aca va el nombre de la funcion que realizara el calculo de columna';
+
+COMMENT ON COLUMN conta.ttipo_estado_columna.link_int_det
+IS 'ur de la interface que mostra el detalle de la composicion del calculo(para la columnas de origen funcion),... para origen contabilidad mostrara la interface de mayor contable';
+
+
+--------------- SQL ---------------
+ALTER TABLE conta.ttipo_estado_columna
+  ADD COLUMN id_tipo_estado_cuenta INTEGER NOT NULL;
+  
+-------------- SQL ---------------
+
+ALTER TABLE conta.ttipo_estado_columna
+  ADD COLUMN prioridad NUMERIC DEFAULT 1 NOT NULL;
+
+COMMENT ON COLUMN conta.ttipo_estado_columna.prioridad
+IS 'Prioridad con la que se muestra la columna en los resultados';
+
+/***********************************F-SCP-RAC-CONTA-1-26/07/2017****************************************/
+  
+  
+  
+/***********************************I-SCP-RAC-CONTA-1-29/07/2017****************************************/
+ 
+ALTER TABLE conta.ttipo_estado_columna
+  ADD COLUMN descripcion VARCHAR;
+
+--------------- SQL ---------------
+
+ALTER TABLE conta.ttipo_estado_columna
+  ADD COLUMN clase VARCHAR(300);
+
+COMMENT ON COLUMN conta.ttipo_estado_columna.clase
+IS 'nombre de la clase que se ejecuta para msotrar el detalle';
+
+--------------- SQL ---------------
+
+ALTER TABLE conta.ttipo_estado_columna
+  ADD COLUMN parametros_det VARCHAR DEFAULT '{}' NOT NULL;
+
+COMMENT ON COLUMN conta.ttipo_estado_columna.parametros_det
+IS 'JSON con los parametros que se mandan al a la interface de datalle';
+
+   
+/***********************************F-SCP-RAC-CONTA-1-29/07/2017****************************************/
+  

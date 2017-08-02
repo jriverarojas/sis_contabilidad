@@ -117,7 +117,9 @@ BEGIN
                 id_usuario_mod,
                 eeff,
                 valor_incremento,
-                sw_control_efectivo
+                sw_control_efectivo,
+                id_config_subtipo_cuenta,
+                tipo_act
           	) values(
                 v_id_cuenta_padre,
                 v_parametros.nombre_cuenta,
@@ -137,7 +139,9 @@ BEGIN
                 null,
                 string_to_array(v_parametros.eeff,',')::varchar[],
                 v_parametros.valor_incremento,
-                v_parametros.sw_control_efectivo
+                v_parametros.sw_control_efectivo,
+                v_parametros.id_config_subtipo_cuenta,
+                v_parametros.tipo_act
 							
 			)RETURNING id_cuenta into v_id_cuenta;
 			
@@ -187,11 +191,15 @@ BEGIN
             select
               cue.valor_incremento,
               cue.eeff,
-              cue.tipo_cuenta
+              cue.tipo_cuenta,
+              cue.id_config_subtipo_cuenta,
+              cue.tipo_act
             into
               v_registros
             from conta.tcuenta cue
             where cue.id_cuenta = v_parametros.id_cuenta;
+            
+           
         
 			--Sentencia de la modificacion
 			update conta.tcuenta set
@@ -209,13 +217,21 @@ BEGIN
               id_usuario_mod = p_id_usuario,
               eeff = string_to_array(v_parametros.eeff,',')::varchar[],
               valor_incremento = v_parametros.valor_incremento,
-              sw_control_efectivo =  v_parametros.sw_control_efectivo
+              sw_control_efectivo =  v_parametros.sw_control_efectivo,
+              id_config_subtipo_cuenta = v_parametros.id_config_subtipo_cuenta,
+              tipo_act  =  v_parametros.tipo_act
 			where id_cuenta = v_parametros.id_cuenta;
              
             --raise exception '% ', v_parametros.id_cuenta;
             --si los valores por defecto cambiarno modificar recursivamente
-            IF v_registros.eeff != string_to_array(v_parametros.eeff,',')::varchar[] or   v_registros.valor_incremento != v_parametros.valor_incremento or  v_registros.tipo_cuenta != v_parametros.tipo_cuenta  THEN
-            
+            IF       v_registros.eeff != string_to_array(v_parametros.eeff,',')::varchar[] 
+                or   v_registros.valor_incremento != v_parametros.valor_incremento 
+                or  v_registros.tipo_cuenta != v_parametros.tipo_cuenta 
+                or  v_registros.tipo_act != v_parametros.tipo_act   
+                or  (
+                		v_registros.id_config_subtipo_cuenta is null 
+                      or v_registros.id_config_subtipo_cuenta != v_parametros.id_config_subtipo_cuenta) THEN
+                
                  FOR v_registros_cuenta in  (
                      WITH RECURSIVE cuenta_inf(id_cuenta, id_cuenta_padre) AS (
                           select 
@@ -231,12 +247,48 @@ BEGIN
                           WHERE c2.id_cuenta_padre = pc.id_cuenta  and c2.estado_reg = 'activo'
                         )
                        SELECT * FROM cuenta_inf) LOOP
+                       
+                  
+                      
+                     IF v_registros.eeff != string_to_array(v_parametros.eeff,',')::varchar[] THEN
+                        update conta.tcuenta c  set
+                           eeff = string_to_array(v_parametros.eeff,',')::varchar[]
+                        where id_cuenta = v_registros_cuenta.id_cuenta; 
+                      
+                     END IF; 
+                     
+                     IF v_registros.valor_incremento != v_parametros.valor_incremento THEN 
+                        update conta.tcuenta c  set
+                           valor_incremento = v_parametros.valor_incremento
+                        where id_cuenta = v_registros_cuenta.id_cuenta;
+                      
+                     END IF;  
+                     
+                     IF v_registros.tipo_cuenta != v_parametros.tipo_cuenta THEN 
+                       update conta.tcuenta c  set
+                           tipo_cuenta = v_parametros.tipo_cuenta
+                       where id_cuenta = v_registros_cuenta.id_cuenta;
+                      
+                     END IF;
+                     
+                     IF  v_registros.tipo_act != v_parametros.tipo_act    THEN                        
+                        update conta.tcuenta c  set
+                           tipo_act =  v_parametros.tipo_act
+                        where id_cuenta = v_registros_cuenta.id_cuenta;
+                     END IF; 
+                     
+                     IF      v_registros.id_config_subtipo_cuenta is null 
+                         or  v_registros.id_config_subtipo_cuenta != v_parametros.id_config_subtipo_cuenta    THEN 
+                         
+                        update conta.tcuenta c  set
+                           id_config_subtipo_cuenta = v_parametros.id_config_subtipo_cuenta
+                        where id_cuenta = v_registros_cuenta.id_cuenta;
+                      
+                     END IF;    
                     
-                    update conta.tcuenta c  set
-                      eeff = string_to_array(v_parametros.eeff,',')::varchar[],
-                      valor_incremento = v_parametros.valor_incremento,
-                      tipo_cuenta = v_parametros.tipo_cuenta
-                     where id_cuenta = v_registros_cuenta.id_cuenta;
+                    
+                     
+                   
                 
                END LOOP;
             
@@ -381,7 +433,8 @@ BEGIN
                                   cuenta_flujo_sigma,
                                   valor_incremento,
                                   eeff,
-                                  sw_control_efectivo
+                                  sw_control_efectivo,
+                                  id_config_subtipo_cuenta
                                 )
                                 VALUES (
                                   p_id_usuario,
@@ -406,7 +459,8 @@ BEGIN
                                   v_reg_cuenta_ori.cuenta_flujo_sigma,
                                   v_reg_cuenta_ori.valor_incremento,
                                   v_reg_cuenta_ori.eeff,
-                                  v_reg_cuenta_ori.sw_control_efectivo
+                                  v_reg_cuenta_ori.sw_control_efectivo,
+                                  v_reg_cuenta_ori.id_config_subtipo_cuenta
                                 ) RETURNING id_cuenta into v_id_cuenta;
                           
                           --insertar relacion en tre ambas gestion

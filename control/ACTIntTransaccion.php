@@ -68,7 +68,9 @@ class ACTIntTransaccion extends ACTbase{
 			$temp['importe_debe_mb'] = $this->res->extraData['total_debe_mb'];
 			$temp['importe_haber_mb'] = $this->res->extraData['total_haber_mb'];
 			$temp['importe_debe_mt'] = $this->res->extraData['total_debe_mt'];
-			$temp['importe_haber_mt'] = $this->res->extraData['total_haber_mt'];
+			$temp['importe_haber_mt'] = $this->res->extraData['total_haber_mt'];			
+			$temp['importe_debe_ma'] = $this->res->extraData['total_debe_ma'];
+			$temp['importe_haber_ma'] = $this->res->extraData['total_haber_ma'];
 			$temp['importe_gasto'] = $this->res->extraData['total_gasto'];
 			$temp['importe_recurso'] = $this->res->extraData['total_recurso'];
 			$temp['glosa'] = 'Sumas iguales';
@@ -110,6 +112,15 @@ class ACTIntTransaccion extends ACTbase{
 		if($this->objParam->getParametro('id_gestion')!=''){
 			$this->objParam->addFiltro("per.id_gestion = ".$this->objParam->getParametro('id_gestion'));	
 		}
+		
+		if($this->objParam->getParametro('id_config_tipo_cuenta')!=''){
+			$this->objParam->addFiltro("ctc.id_config_tipo_cuenta = ".$this->objParam->getParametro('id_config_tipo_cuenta'));	
+		}
+		
+		if($this->objParam->getParametro('id_config_subtipo_cuenta')!=''){
+			$this->objParam->addFiltro("csc.id_config_subtipo_cuenta = ".$this->objParam->getParametro('id_config_subtipo_cuenta'));	
+		}
+		
 		
 		if($this->objParam->getParametro('id_depto')!=''){
 			$this->objParam->addFiltro("icbte.id_depto = ".$this->objParam->getParametro('id_depto'));	
@@ -167,7 +178,9 @@ class ACTIntTransaccion extends ACTbase{
 		$temp['importe_debe_mb'] = $this->res->extraData['total_debe'];
 		$temp['importe_haber_mb'] = $this->res->extraData['total_haber'];
 		$temp['importe_debe_mt'] = $this->res->extraData['total_debe_mt'];
-		$temp['importe_haber_mt'] = $this->res->extraData['total_haber_mt'];
+		$temp['importe_haber_mt'] = $this->res->extraData['total_haber_mt'];		
+		$temp['importe_debe_ma'] = $this->res->extraData['total_debe_ma'];
+		$temp['importe_haber_ma'] = $this->res->extraData['total_haber_ma'];
 		$temp['tipo_reg'] = 'summary';
 		$temp['id_int_transaccion'] = 0;
 		
@@ -184,6 +197,67 @@ class ACTIntTransaccion extends ACTbase{
 		} else{			
 			$this->res=$this->objFunc->guardarDatosBancos($this->objParam);
 		}
+		$this->res->imprimirRespuesta($this->res->generarJson());
+	}
+
+     function listarIntTransaccionOrden(){
+		$this->objParam->defecto('ordenacion','id_orden_trabajo');
+		$this->objParam->defecto('dir_ordenacion','asc');
+		
+		
+		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
+			$this->objReporte = new Reporte($this->objParam,$this);
+			$this->res = $this->objReporte->generarReporteListado('MODIntTransaccion','listarIntTransaccionOrden');
+		} else{
+			$this->objFunc=$this->create('MODIntTransaccion');
+			
+			$this->res=$this->objFunc->listarIntTransaccionOrden($this->objParam);
+		}
+		//adicionar una fila al resultado con el summario
+		$temp = Array();
+		$temp['importe_debe_mb'] = $this->res->extraData['total_debe'];
+		$temp['importe_haber_mb'] = $this->res->extraData['total_haber'];
+		$temp['importe_debe_mt'] = $this->res->extraData['total_debe_mt'];
+		$temp['importe_haber_mt'] = $this->res->extraData['total_haber_mt'];
+		$temp['importe_debe_ma'] = $this->res->extraData['total_debe_ma'];
+		$temp['importe_haber_ma'] = $this->res->extraData['total_haber_ma'];
+		$temp['tipo_reg'] = 'summary';
+		$temp['id_orden_trabajo'] = -1;
+		
+		$this->res->total++;
+		
+		$this->res->addLastRecDatos($temp);
+		$this->res->imprimirRespuesta($this->res->generarJson());
+	}
+
+    function listarIntTransaccionPartida(){
+		$this->objParam->defecto('ordenacion','codigo_partida');
+		$this->objParam->defecto('dir_ordenacion','asc');
+		
+		
+		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
+			$this->objReporte = new Reporte($this->objParam,$this);
+			$this->res = $this->objReporte->generarReporteListado('MODIntTransaccion','listarIntTransaccionPartida');
+		} else{
+			$this->objFunc=$this->create('MODIntTransaccion');
+			
+			$this->res=$this->objFunc->listarIntTransaccionPartida($this->objParam);
+		}
+		//adicionar una fila al resultado con el summario
+		$temp = Array();
+		$temp['importe_debe_mb'] = $this->res->extraData['total_debe'];
+		$temp['importe_haber_mb'] = $this->res->extraData['total_haber'];
+		$temp['importe_debe_mt'] = $this->res->extraData['total_debe_mt'];
+		$temp['importe_haber_mt'] = $this->res->extraData['total_haber_mt'];
+		$temp['importe_debe_ma'] = $this->res->extraData['total_debe_ma'];
+		$temp['importe_haber_ma'] = $this->res->extraData['total_haber_ma'];
+		$temp['tipo_reg'] = 'summary';
+		$temp['tipo_reg'] = 'summary';
+		$temp['id_partida'] = -1;
+		
+		$this->res->total++;
+		
+		$this->res->addLastRecDatos($temp);
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
 			
