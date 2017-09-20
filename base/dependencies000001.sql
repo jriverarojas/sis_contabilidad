@@ -3997,10 +3997,8 @@ ALTER TABLE conta.tcuenta_auxiliar
 
 /**********************************F-DEP-RAC-CONTA-0-21/07/2017****************************************/
 
-
 /**********************************I-DEP-MANU-CONTA-0-25/09/2017****************************************/
 select pxp.f_insert_testructura_gui ('REPRET', 'REPCON');
-
 
 CREATE OR REPLACE VIEW conta.vretencion(
     id_doc_compra_venta,
@@ -4066,4 +4064,5 @@ AS
          dcv.id_tipo_doc_compra_venta
   WHERE pla.tipo_informe::text = 'retenciones'::text and
         pc.descuento::text = 'si'::text;
+        
 /**********************************F-DEP-MANU-CONTA-0-25/09/2017****************************************/
