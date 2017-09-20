@@ -1,5 +1,5 @@
 <?php
-/** 
+/**
  *@package pXP
  *@file    GenerarLibroRetenciones.php
  *@author  Manuel Guerra

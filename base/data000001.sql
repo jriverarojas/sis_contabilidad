@@ -1343,6 +1343,6 @@ VALUES
 
 /***********************************F-DAT-RAC-CONTA-0-01/08/2017*****************************************/
 
-/***********************************I-DAT-MANU-CONTA-0-25/09/2017*****************************************/
+/***********************************I-DAT-MANU-CONTA-0-25/09/2017*****************************************/ 
 select pxp.f_insert_tgui ('Reporte Retencion', 'Reporte Retencion', 'REPRET', 'si', 13, 'sis_contabilidad/reportes/formularios/LibroComprasVentasRetenciones.php', 3, '', 'ReporteRetenciones', 'CONTA');
 /***********************************F-DAT-MANU-CONTA-0-25/09/2017*****************************************/

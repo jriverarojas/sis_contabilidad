@@ -1,4 +1,4 @@
-<?php
+<?php 
 // Extend the TCPDF class to create custom MultiRow 
 class RRetencion extends ReportePDF {
 	var $datos_titulo;
