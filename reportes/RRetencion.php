@@ -1,5 +1,5 @@
 <?php
-// Extend the TCPDF class to create custom MultiRow   manu 
+// Extend the TCPDF class to create custom MultiRow   manu  p
 class RRetencion extends ReportePDF {
 	var $datos_titulo;
 	var $datos_detalle;
