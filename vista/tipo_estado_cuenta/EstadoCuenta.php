@@ -9,12 +9,16 @@
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
+var aux=null;
+var tes=null;
+var ini=null;
+var fin=null;
 Phx.vista.EstadoCuenta = Ext.extend(Phx.gridInterfaz,{
     title:'Mayor',
 	constructor:function(config){		
 		var me = this;
 		this.maestro=config.maestro;
-		
+
 		 //Agrega combo de moneda
 		
 		this.Atributos = [
@@ -41,9 +45,7 @@ Phx.vista.EstadoCuenta = Ext.extend(Phx.gridInterfaz,{
 			   },
 			   type:'Field',
 			   grid:true
-		    },
-			
-			
+			},			
 			{
 				config:{
 					name: 'nombre',
@@ -123,6 +125,14 @@ Phx.vista.EstadoCuenta = Ext.extend(Phx.gridInterfaz,{
 		this.init();
 		this.grid.addListener('cellclick', this.oncellclick,this);
 		
+		this.addButton('btnImpReporte', {
+			text: 'Imprimir Reporte',
+			iconCls: 'bprintcheck',
+			disabled: true,
+			handler: this.impReporte,
+			tooltip: '<b>Imprimir</b><br/>'
+		});
+	
 	},
 	
 	tam_pag: 50,	
@@ -144,6 +154,7 @@ Phx.vista.EstadoCuenta = Ext.extend(Phx.gridInterfaz,{
         'nombre_funcion' ,
         'link_int_det'  ,
         'tabla'  ,
+        
         'id_tabla',
         'origen' ,
         'descripcion',
@@ -163,9 +174,11 @@ Phx.vista.EstadoCuenta = Ext.extend(Phx.gridInterfaz,{
 	bsave: false,
 	loadValoresIniciales:function(){
 		Phx.vista.EstadoCuenta.superclass.loadValoresIniciales.call(this);
+		
 		this.getComponente('id_int_comprobante').setValue(this.maestro.id_int_comprobante);		
 	},
 	onReloadPage:function(param){
+		
 		//Se obtiene la gestión en función de la fecha del comprobante para filtrar partidas, cuentas, etc.
 		var me = this;
 		this.initFiltro(param);
@@ -189,7 +202,30 @@ Phx.vista.EstadoCuenta = Ext.extend(Phx.gridInterfaz,{
 			var tb = Phx.vista.EstadoCuenta.superclass.liberaMenu.call(this);
 	},
 	
+	postReloadPage:function(data){
+		aux=data.id_auxiliar;
+		tes=data.id_tipo_estado_cuenta;
+		ini=data.desde;
+		fin=data.hasta;		
+	},
 	
+	impReporte: function(){	
+		Phx.CP.loadingShow();	
+		Ext.Ajax.request({
+			url: '../../sis_contabilidad/control/TipoEstadoCuenta/impReporte',
+			params: {
+				'id_tipo_estado_cuenta': tes, 
+				'id_auxiliar': aux,				
+				'desde': ini,
+				'hasta': fin
+			},
+			success : this.successExport,
+			failure: this.conexionFailure,
+			timeout: this.timeout,
+			scope: this
+		});
+	},
+			
     bnew : false,
     bedit: false,
     bdel:  false,

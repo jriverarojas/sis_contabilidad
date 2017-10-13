@@ -20,7 +20,10 @@ class MODAuxiliar extends MODbase{
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 		
 		
-		$this->setParametro('id_cuenta','id_cuenta','int4');		
+		$this->setParametro('id_cuenta','id_cuenta','int4');	
+		$this->setParametro('id_centro_costo','id_centro_costo','int4');
+		
+		
 		//Definicion de la lista del resultado del query
 		$this->captura('id_auxiliar','int4');
 		$this->captura('id_empresa','int4');
@@ -127,6 +130,23 @@ class MODAuxiliar extends MODbase{
         //Devuelve la respuesta
         return $this->respuesta;
     }
+	//
+	function getAuxiliar(){
+		//Definicion de variables para ejecucion del procedimiento
+		$this->procedimiento='conta.f_auxiliar_ime';
+		$this->transaccion='CONTA_COD_AUX_GET';
+		$this->tipo_procedimiento='IME';
+				
+		//Define los parametros para la funcion
+		$this->setParametro('id_auxiliar','id_auxiliar','int4');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
 			
 }
 ?>
